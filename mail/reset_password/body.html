@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Reset password link was sent</title>
+  </head>
+  <body>
+    <p>
+      You can reset your password by clicking
+      <a href="{{ password_link | safe }}">here</a>.
+    </p>
+    {{ password_link | safe }}
+  </body>
+</html>
