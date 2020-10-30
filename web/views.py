@@ -22,6 +22,7 @@ today = datetime.date.today()
 def gen_password(length=64, charset="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@$%-_"):
     return "".join([secrets.choice(charset) for _ in range(0, length)])
 
+
 class ResetPasswordSend(APIView):
 	def post(self, request):
 		email = request.data.get('email')
@@ -67,8 +68,30 @@ class ResetPasswordSend(APIView):
 
 class ResetPassChange(APIView):
 	def post(self, request):
-		signature = request.data.get('signature')
+		signature = request.data.get('token')
 		password = request.data.get('new_password')
+		password2 = request.data.get('confirm_password')
+
+		# We declare some password verifications
+
+		upper_case = sum(1 for c in password if c.isupper())
+		digits = sum(1 for c in password if c.isdigit())
+		chars = sum(1 for c in password if not c.isalnum())
+		length = len(password)
+
+		# We throw error if the above are passed
+
+		if password2 != password:
+			return Response({'error': 'Password mismatch. Try again.'}, status=status.HTTP_400_BAD_REQUEST)
+		elif length < 6:
+			return Response({'error': 'Password is too short. Try another'}, status=status.HTTP_400_BAD_REQUEST)
+		elif not upper_case:
+			return Response({'error': 'Password must contain at least one Uppercase.'}, status=status.HTTP_400_BAD_REQUEST)
+		elif not digits:
+			return Response({'error': 'Password must contain at least one number.'}, status=status.HTTP_400_BAD_REQUEST)
+		elif not chars:
+			return Response({'error': 'Password must contain at least one character.'}, status=status.HTTP_400_BAD_REQUEST)
+
 		new_password = make_password(password)
 
 		# Check if token exists
